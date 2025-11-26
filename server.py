@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, HTTPException
 from fastapi.responses import Response
 import subprocess
 import tempfile
@@ -14,9 +14,8 @@ VOICE_MODELS = {
 @app.post("/api/tts")
 async def tts_api(payload: dict = Body(...)):
     text = payload.get("text", "")
-    voice = payload.get("voice", "priyamvada")  # default = female
+    voice = payload.get("voice", "priyamvada")
 
-    # fallback
     if voice not in VOICE_MODELS:
         voice = "priyamvada"
 
@@ -25,20 +24,30 @@ async def tts_api(payload: dict = Body(...)):
     if not text.strip():
         return {"error": "Text missing"}
 
-    # temp wav file
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
     tmp.close()
 
-    # run Piper
+    # Piper command without --text flag
     cmd = [
         "piper",
         "--model", model_path,
-        "--output_file", tmp.name,
-        "--text", text
+        "--output_file", tmp.name
     ]
-    subprocess.run(cmd)
 
-    # read output
+    try:
+        # Text ko 'input' ke through bheja ja raha hai (Pipe)
+        subprocess.run(cmd, input=text, text=True, check=True)
+        
+        # Check karein agar file khali hai
+        if os.path.getsize(tmp.name) == 0:
+            raise Exception("Piper generated an empty file")
+
+    except Exception as e:
+        if os.path.exists(tmp.name):
+            os.remove(tmp.name)
+        print(f"Error: {e}")
+        return Response(content=str(e), status_code=500)
+
     with open(tmp.name, "rb") as f:
         audio_data = f.read()
 
