@@ -6,8 +6,8 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Install Piper ARM64 binary (correct for Render free tier)
-RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/v0.0.3/piper_linux_aarch64.tar.gz \
+# Download Piper ARM64 binary from fast CDN (Render Free Tier compatible)
+RUN curl -L -o piper.tar.gz https://huggingface.co/datasets/mtk7/piper-binaries/resolve/main/piper_linux_aarch64.tar.gz \
     && tar -xzf piper.tar.gz \
     && mv piper_linux_aarch64/piper /usr/local/bin/piper \
     && chmod +x /usr/local/bin/piper \
