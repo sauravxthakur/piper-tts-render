@@ -27,7 +27,6 @@ async def tts_api(payload: dict = Body(...)):
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
     tmp.close()
 
-    # Piper command without --text flag
     cmd = [
         "piper",
         "--model", model_path,
@@ -35,17 +34,23 @@ async def tts_api(payload: dict = Body(...)):
     ]
 
     try:
-        # Text ko 'input' ke through bheja ja raha hai (Pipe)
-        subprocess.run(cmd, input=text, text=True, check=True)
+        # CHANGE: capture_output=True add kiya taki hum error padh sakein
+        result = subprocess.run(cmd, input=text, text=True, capture_output=True)
         
+        # Agar Piper fail hua (return code 0 nahi hai)
+        if result.returncode != 0:
+            error_msg = result.stderr.strip()
+            print(f"❌ Piper Error Logs: {error_msg}")  # Ye Render logs me dikhega
+            raise Exception(f"Piper failed: {error_msg}")
+
         # Check karein agar file khali hai
         if os.path.getsize(tmp.name) == 0:
-            raise Exception("Piper generated an empty file")
+            raise Exception("Piper generated an empty file (0 bytes).")
 
     except Exception as e:
         if os.path.exists(tmp.name):
             os.remove(tmp.name)
-        print(f"Error: {e}")
+        print(f"❌ System Error: {e}")
         return Response(content=str(e), status_code=500)
 
     with open(tmp.name, "rb") as f:
