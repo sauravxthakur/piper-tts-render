@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Download correct ARM64 Piper binary
+# Install Piper ARM64 binary (correct for Render free tier)
 RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/v0.0.3/piper_linux_aarch64.tar.gz \
     && tar -xzf piper.tar.gz \
     && mv piper_linux_aarch64/piper /usr/local/bin/piper \
@@ -15,6 +15,7 @@ RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/v
 
 RUN pip install fastapi uvicorn python-multipart
 
+# Download voices
 RUN curl -L -o priyamvada.onnx https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/priyamvada/medium/hi_IN-priyamvada-medium.onnx
 RUN curl -L -o pratham.onnx https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/pratham/medium/hi_IN-pratham-medium.onnx
 
