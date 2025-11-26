@@ -1,22 +1,22 @@
 FROM python:3.10-slim
 
 RUN apt-get update && apt-get install -y \
-    libsndfile1 curl unzip \
+    libsndfile1 curl tar \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Download correct ARM64 Piper binary for Render FREE tier (aarch64)
-RUN curl -L -o piper.zip https://github.com/rhasspy/piper/releases/download/v0.0.2/piper_linux_aarch64.zip \
-    && unzip piper.zip -d piper_bin \
-    && mv piper_bin/piper /usr/local/bin/piper \
+# Download correct ARM64 Piper binary
+RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/v0.0.3/piper_linux_aarch64.tar.gz \
+    && tar -xzf piper.tar.gz \
+    && mv piper_linux_aarch64/piper /usr/local/bin/piper \
     && chmod +x /usr/local/bin/piper \
-    && rm -rf piper.zip piper_bin
+    && rm -rf piper.tar.gz piper_linux_aarch64
 
-# Install python libs
+# Python dependencies
 RUN pip install fastapi uvicorn python-multipart
 
-# Download voices
+# Download voice models
 RUN curl -L -o priyamvada.onnx https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/priyamvada/medium/hi_IN-priyamvada-medium.onnx
 RUN curl -L -o pratham.onnx https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/pratham/medium/hi_IN-pratham-medium.onnx
 
