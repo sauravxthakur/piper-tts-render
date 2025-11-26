@@ -13,10 +13,8 @@ RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/v
     && chmod +x /usr/local/bin/piper \
     && rm -rf piper.tar.gz piper_linux_aarch64
 
-# Python dependencies
 RUN pip install fastapi uvicorn python-multipart
 
-# Download voice models
 RUN curl -L -o priyamvada.onnx https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/priyamvada/medium/hi_IN-priyamvada-medium.onnx
 RUN curl -L -o pratham.onnx https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/pratham/medium/hi_IN-pratham-medium.onnx
 
