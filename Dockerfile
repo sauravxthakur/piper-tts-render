@@ -8,17 +8,19 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # 2. Download Correct Piper Binary for Render (AMD64 / x86_64)
-# Hum .tar.gz use kar rahe hain kyunki ye Linux ke liye standard hai
 RUN curl -L -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_x86_64.tar.gz \
     && tar -xzf piper.tar.gz \
     && mv piper /usr/local/share/piper \
     && ln -s /usr/local/share/piper/piper /usr/local/bin/piper \
     && rm piper.tar.gz
 
+# 👇 YE LINE MISSING THI. ISKE BINA PIPER NAHI CHALEGA.
+ENV LD_LIBRARY_PATH=/usr/local/share/piper:$LD_LIBRARY_PATH
+
 # 3. Install Python Dependencies
 RUN pip install fastapi uvicorn python-multipart
 
-# 4. Download Voice Models AND JSON Configs (Important!)
+# 4. Download Voice Models AND JSON Configs
 # Priyamvada
 RUN curl -L -o priyamvada.onnx https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/priyamvada/medium/hi_IN-priyamvada-medium.onnx
 RUN curl -L -o priyamvada.onnx.json https://huggingface.co/rhasspy/piper-voices/resolve/main/hi/hi_IN/priyamvada/medium/hi_IN-priyamvada-medium.onnx.json
