@@ -1,10 +1,21 @@
 from fastapi import FastAPI, Body
 from fastapi.responses import Response
+# 👇 1. Ye naya import zaroori hai
+from fastapi.middleware.cors import CORSMiddleware
 import subprocess
 import tempfile
 import os
 
 app = FastAPI()
+
+# 👇 2. Ye block add karein taaki browser se request block na ho
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Sabhi websites ko permission de raha hai
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 VOICE_MODELS = {
     "priyamvada": "priyamvada.onnx",
