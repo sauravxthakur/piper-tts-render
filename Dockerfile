@@ -1,17 +1,17 @@
 FROM python:3.10-slim
 
 RUN apt-get update && apt-get install -y \
-    libsndfile1 curl tar \
+    libsndfile1 curl unzip \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Download Piper ARM64 binary from fast CDN (Render Free Tier compatible)
-RUN curl -L -o piper.tar.gz https://huggingface.co/datasets/mtk7/piper-binaries/resolve/main/piper_linux_aarch64.tar.gz \
-    && tar -xzf piper.tar.gz \
-    && mv piper_linux_aarch64/piper /usr/local/bin/piper \
+# Download Piper ARM64 from custom lightweight mirror (Render-safe)
+RUN curl -L -o piper.zip https://raw.githubusercontent.com/heyitsarmaan/piper-mirror/main/piper_arm64.zip \
+    && unzip piper.zip -d piper_bin \
+    && mv piper_bin/piper /usr/local/bin/piper \
     && chmod +x /usr/local/bin/piper \
-    && rm -rf piper.tar.gz piper_linux_aarch64
+    && rm -rf piper.zip piper_bin
 
 RUN pip install fastapi uvicorn python-multipart
 
